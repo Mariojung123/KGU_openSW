@@ -1,0 +1,104 @@
+/* 사이드바 스타일 */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #282c34; /* 어두운 배경색 */
+    color: white; /* 텍스트 색상 명확히 설정 */
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    z-index: 10; /* 사이드바가 아래로 가지 않도록 설정 */
+    overflow-y: auto; /* 스크롤이 필요할 경우 처리 */
+    transition: transform 0.3s ease-in-out; /* 부드러운 열림/닫힘 애니메이션 */
+    transform: translateX(-100%); /* 기본 닫힌 상태 */
+}
+
+.sidebar.open {
+    transform: translateX(0); /* 열림 상태 */
+}
+
+/* 사이드바 내부 아이템 */
+.sidebar a {
+    color: white; /* 링크 텍스트 색상 */
+    text-decoration: none;
+    display: block;
+    margin: 15px 0; /* 간격 조정 */
+    padding: 10px 15px; /* 클릭 영역 확장 */
+    border-radius: 5px; /* 부드러운 모서리 */
+    transition: background-color 0.2s ease; /* 호버 효과 추가 */
+}
+
+.sidebar a:hover {
+    background-color: #444; /* 호버 시 배경색 변경 */
+}
+
+/* 토글 버튼 스타일 */
+.sidebar-toggle {
+    font-size: 30px;
+    color: #fff; /* 텍스트 색상 흰색 */
+    background-color: transparent; /* 배경색을 투명으로 설정 */
+    border: none;
+    cursor: pointer;
+    position: fixed;
+    top: 20px; /* 상단에 위치 */
+    left: 20px; /* 좌측에 위치 */
+    border-radius: 10%; /* 원형 버튼 */
+    z-index: 2000; /* 버튼이 사이드바 위에 있도록 설정 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 그림자 추가로 입체감 */
+    transition: background-color 0.2s ease, transform 0.2s ease; /* 호버 시 색상과 크기 변화 */
+    visibility: visible; /* 항상 보이게 설정 */
+}
+
+/* 호버 상태 */
+.sidebar-toggle:hover {
+    background-color: #ffffff; /* 호버 시 색상 변경 */
+    transform: scale(1.1); /* 버튼 크기 확대 */
+}
+
+/* 포커스 상태 */
+.sidebar-toggle:focus {
+    outline: none; /* 포커스 시 테두리 없애기 */
+}
+
+/* 로그인 버튼 스타일 */
+.auth-button {
+    background-color: #61dafb; /* 로그인 버튼 색상 */
+    color: #282c34; /* 텍스트 색상 */
+    border: none;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.auth-button:hover {
+    background-color: #21a1f1; /* 호버 시 색상 변경 */
+}
+
+/* 사이드바 아이템 컨테이너 */
+#side-items {
+    text-align: left; /* 왼쪽 정렬 */
+    display: flex;
+    flex-direction: column; /* 세로 방향 정렬 */
+    gap: 10px; /* 요소 간격 추가 */
+}
+
+/* 사이드바 내부 아이템 */
+.sidebar-link {
+    color: white; /* 링크 텍스트 색상 */
+    text-decoration: none;
+    display: block;
+    margin: 15px 0; /* 간격 조정 */
+    padding: 10px 15px; /* 클릭 영역 확장 */
+    border-radius: 5px; /* 부드러운 모서리 */
+    transition: background-color 0.2s ease; /* 호버 효과 추가 */
+}
+
+.sidebar-link:hover {
+    background-color: #444; /* 호버 시 배경색 변경 */
+}
