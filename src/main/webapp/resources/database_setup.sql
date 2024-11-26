@@ -6,4 +6,4 @@ INSERT INTO restaurant_info (
     '경기도 안양시 만안구 석수동 320-14번지', '경기도 안양시 만안구 안양로 468', '13965',
     126.9111037, 37.41180025
 );
-SELECT * FROM restaurant_info WHERE SIGUN_NM = '안양시';
+

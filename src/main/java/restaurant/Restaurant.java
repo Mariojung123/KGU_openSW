@@ -5,32 +5,31 @@ public class Restaurant {
     private String name;
     private String address;
     private String phone;
-    private double latitude;
-    private double longitude;
+    private double la;
+    private double lo;
 
     public Restaurant() {}
 
-    public Restaurant(String region, String name, String address, String phone, double latitude, double longitude) {
+    public Restaurant(String region, String name, String address, String phone, double la, double lo) {
         this.region = region;
         this.name = name;
         this.address = address;
         this.phone = phone;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.la = la;
+        this.lo = lo;
     }
 
     public String getRegion() { return region; }
     public String getName() { return name; }
     public String getAddress() { return address; }
     public String getPhone() { return phone; }
-    public double getLatitude() { return latitude; }
-    public double getLongitude() { return longitude; }
+    public double getLatitude() { return la; }
+    public double getLongitude() { return lo; }
 
-    // Setter 메서드 (필수)
     public void setRegion(String region) { this.region = region; }
     public void setName(String name) { this.name = name; }
     public void setAddress(String address) { this.address = address; }
     public void setPhone(String phone) { this.phone = phone; }
-    public void setLatitude(double latitude) { this.latitude = latitude; }
-    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public void setLatitude(double latitude) { this.la = latitude; }
+    public void setLongitude(double longitude) { this.lo = longitude; }
 }

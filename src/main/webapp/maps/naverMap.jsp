@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네이버 지도 - 지역별 음식점 표시 슈웃</title>
+    <title>네이버 지도 - 지역별 음식점 표시하깅</title>
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=es3iw874ms&submodules=clustering"></script>
     <style>
         #map {
@@ -20,7 +20,7 @@
     </style>
 </head>
 <body>
-<h1>네이버 지도 - 지역별 음식점 표시 슈웃</h1>
+<h1>네이버 지도 - 지역별 음식점 표시하깅</h1>
 <button onclick="moveToRegion('경기도', 37.4128, 127.5183)">경기도</button>
 <button onclick="moveToRegion('충청도', 36.5184, 127.8802)">충청도</button>
 <button onclick="moveToRegion('전라도', 35.8173, 127.1500)">전라도</button>
@@ -97,7 +97,7 @@
 
         naver.maps.Event.addListener(marker, 'click', function () {
             map.setCenter(new naver.maps.LatLng(restaurant.lat, restaurant.lng));
-            map.setZoom(15); // 확대
+            map.setZoom(15);
         });
 
         markers.push(marker);

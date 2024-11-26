@@ -32,8 +32,8 @@ public class RestauarantDAO {
                     rs.getString("name"),
                     rs.getString("address"),
                     rs.getString("phone"),
-                    rs.getDouble("latitude"),
-                    rs.getDouble("longitude")
+                    rs.getDouble("la"),
+                    rs.getDouble("lo")
                 ));
             }
         } catch (Exception e) {
