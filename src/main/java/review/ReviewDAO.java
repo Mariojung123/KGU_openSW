@@ -1,6 +1,7 @@
 package review;
 
 import java.sql.*;
+import java.util.List;
 
 import User.User;
 
@@ -50,16 +51,49 @@ public class ReviewDAO {
 		return -1; // 데이터베이스 오류
 	}
 	
-	public int write(String title, User user, String content) {
-		String SQL = "INSERT INTO review VALUE(?, ?, ?, ?, ?, ?)";
+	public Review findOne(Long reviewId) {
+		String SQL = "SELECT r FROM review r WHERE r.reviewId = ?";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, getNext());
-			pstmt.setString(2, title);
+			pstmt.setLong(1, reviewId);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return (Review) rs.getObject(1);
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("null")
+	public List<Review> findAll() {
+		List<Review> reviews = null;
+		String SQL = "SELECT r FROM review r";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				reviews.add((Review) rs.getObject(1));
+			}
+			return reviews;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return reviews;
+	}
+	
+	public int write(User user, ReviewDTO dto) {
+		String SQL = "INSERT INTO review (reviewId, title, user, createdDate, content, rating) VALUE(?, ?, ?, ?, ?, ?, ?)";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setLong(1, getNext());
+			pstmt.setString(2, dto.getTitle());
 			pstmt.setObject(3, user);
 			pstmt.setString(4, getDate());
-			pstmt.setString(5, content);
-			pstmt.setInt(6, 1);
+			pstmt.setString(5, dto.getContent());
+			pstmt.setDouble(6, dto.getRating());
 			rs = pstmt.executeQuery();
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -68,15 +102,32 @@ public class ReviewDAO {
 		return -1;
 	}
 	
-	public int delete(Long reviewId, User user) {
-		String SQL = "SELECT r FROM review r WHERE r.reviewId = ? AND r.user = ?";
+	public int modify(User user, ReviewDTO dto) {
+		String SQL = "UPDATE r FROM review r SET r.title = ?, r.content = ?, r.rating = ? WHERE r.user = ? AND r.reviewId = ?";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.set
+			pstmt.setString(1, dto.getTitle());
+			pstmt.setString(2, dto.getContent());
+			pstmt.setDouble(3, dto.getRating());
+			rs = pstmt.executeQuery();
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
+		return -1;
 	}
 	
-	private User findUserByUserId(String userId) {
-		
+	public int delete(Long reviewId, User user) {
+		String SQL = "DELETE FROM review r WHERE r.reviewId = ? AND r.user = ?";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setLong(1, reviewId);
+			pstmt.setObject(2, user);
+			rs = pstmt.executeQuery();
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 }
