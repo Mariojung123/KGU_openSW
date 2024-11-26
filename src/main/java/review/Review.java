@@ -7,6 +7,7 @@ public class Review {
 	private Long reviewId;
 	private String title;
 	private String content;
+	private double rating;
 	private User user;
 	private String createdDate;
 	
@@ -36,6 +37,14 @@ public class Review {
 	
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+	
+	public double getRating() {
+		return rating;
 	}
 	
 	public User getUser() {
