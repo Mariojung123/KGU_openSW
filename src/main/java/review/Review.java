@@ -1,25 +1,23 @@
 package review;
 
-import User.User;
-
 public class Review {
 	
 	private Long reviewId;
 	private String title;
 	private String content;
 	private double rating;
-	private User user;
+	private Long userId;
 	private String createdDate;
 	
 	public Review() {
 		super();
 	}
 	
-	public Long getId() {
+	public Long getReviewId() {
 		return reviewId;
 	}
 	
-	public void setId(Long id) {
+	public void setReviewId(Long id) {
 		this.reviewId = id;
 	}
 	
@@ -47,12 +45,12 @@ public class Review {
 		return rating;
 	}
 	
-	public User getUser() {
-		return user;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public String getCreatedDate() {

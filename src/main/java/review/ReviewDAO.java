@@ -1,9 +1,8 @@
 package review;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import User.User;
 
 public class ReviewDAO {
 	private Connection conn;
@@ -14,7 +13,7 @@ public class ReviewDAO {
 		try {
 			String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
 			String dbID = "root";
-			String dbPassword = "1234";
+			String dbPassword = "12";
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
 		} catch (Exception e) {
@@ -25,21 +24,24 @@ public class ReviewDAO {
 	public String getDate() {
 		String SQL = "SELECT NOW()";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				return rs.getString(1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return "";
 	}
 	
 	public int getNext() {
 		String SQL = "SELECT reviewId FROM review ORDER BY reviewId DESC";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				return rs.getInt(1) + 1;
@@ -47,87 +49,122 @@ public class ReviewDAO {
 			return 1; // 첫 번째 게시물인경우
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return -1; // 데이터베이스 오류
 	}
 	
 	public Review findOne(Long reviewId) {
-		String SQL = "SELECT r FROM review r WHERE r.reviewId = ?";
+		String SQL = "SELECT * FROM review WHERE reviewId = ?";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			pstmt.setLong(1, reviewId);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
-				return (Review) rs.getObject(1);
+				Review review = new Review();
+				review.setReviewId(rs.getLong("reviewId"));
+				review.setUserId(rs.getLong("userId"));
+				review.setTitle(rs.getString("title"));
+				review.setContent(rs.getString("content"));
+				review.setRating(rs.getDouble("rating"));
+				review.setCreatedDate(rs.getString("createdDate"));
+				return review;
 			}
 			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return null;
 	}
 	
-	@SuppressWarnings("null")
 	public List<Review> findAll() {
-		List<Review> reviews = null;
-		String SQL = "SELECT r FROM review r";
+		List<Review> reviews = new ArrayList<>();
+		String SQL = "SELECT * FROM review";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				reviews.add((Review) rs.getObject(1));
+			while (rs.next()) {
+				Review review = new Review();
+				review.setReviewId(rs.getLong("reviewId"));
+				review.setUserId(rs.getLong("userId"));
+				review.setTitle(rs.getString("title"));
+				review.setContent(rs.getString("content"));
+				review.setRating(rs.getDouble("rating"));
+				review.setCreatedDate(rs.getString("createdDate"));
+				reviews.add(review);
 			}
 			return reviews;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return reviews;
 	}
 	
-	public int write(User user, ReviewDTO dto) {
-		String SQL = "INSERT INTO review (reviewId, title, user, createdDate, content, rating) VALUE(?, ?, ?, ?, ?, ?, ?)";
+	public int write(Long userId, ReviewDTO dto) {
+		String SQL = "INSERT INTO review (reviewId, title, userId, createdDate, content, rating) VALUES (?, ?, ?, ?, ?, ?)";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			pstmt.setLong(1, getNext());
 			pstmt.setString(2, dto.getTitle());
-			pstmt.setObject(3, user);
+			pstmt.setObject(3, userId);
 			pstmt.setString(4, getDate());
 			pstmt.setString(5, dto.getContent());
 			pstmt.setDouble(6, dto.getRating());
-			rs = pstmt.executeQuery();
 			return pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return -1;
 	}
 	
-	public int modify(User user, ReviewDTO dto) {
-		String SQL = "UPDATE r FROM review r SET r.title = ?, r.content = ?, r.rating = ? WHERE r.user = ? AND r.reviewId = ?";
+	public int modify(Long userId, ReviewDTO dto) {
+		String SQL = "UPDATE review SET title = ?, content = ?, rating = ? WHERE userId = ? AND reviewId = ?";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, dto.getTitle());
 			pstmt.setString(2, dto.getContent());
 			pstmt.setDouble(3, dto.getRating());
-			rs = pstmt.executeQuery();
+			pstmt.setLong(4, userId);
+			pstmt.setLong(5, dto.getReviewId());
 			return pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return -1;
 	}
 	
-	public int delete(Long reviewId, User user) {
-		String SQL = "DELETE FROM review r WHERE r.reviewId = ? AND r.user = ?";
+	public int delete(Long reviewId, Long userId) {
+		String SQL = "DELETE FROM review WHERE reviewId = ? AND userId = ?";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt = conn.prepareStatement(SQL);
 			pstmt.setLong(1, reviewId);
-			pstmt.setObject(2, user);
-			rs = pstmt.executeQuery();
+			pstmt.setObject(2, userId);
 			return pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+	    } finally {
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
 		return -1;
+	}
+	
+	public void close() {
+	    try {
+	        if (conn != null) conn.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
 }
