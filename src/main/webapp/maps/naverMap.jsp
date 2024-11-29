@@ -1,125 +1,201 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, java.util.ArrayList, java.util.List" %>
+<%@ page import="java.io.*, java.net.*, org.json.*" %>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네이버 지도 - 지역별 음식점 표시하깅</title>
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=es3iw874ms&submodules=clustering"></script>
+    <title>경기도 맛집 지도</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=es3iw874ms"></script>
     <style>
-        #map {
-            width: 100%;
-            height: 800px;
-        }
-
-        button {
+        #map { width: 100%; height: 800px; }
+        .controls {
             margin: 10px;
             padding: 10px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .search-box {
+            padding: 8px;
+            margin-right: 10px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #0077ff;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-<h1>네이버 지도 - 지역별 음식점 표시하깅</h1>
-<button onclick="moveToRegion('경기도', 37.4128, 127.5183)">경기도</button>
-<button onclick="moveToRegion('충청도', 36.5184, 127.8802)">충청도</button>
-<button onclick="moveToRegion('전라도', 35.8173, 127.1500)">전라도</button>
-<button onclick="moveToRegion('경상도', 35.4606, 128.6600)">경상도</button>
-<button onclick="moveToRegion('강원도', 37.8228, 128.1555)">강원도</button>
-
+<div class="controls">
+    <input type="text" id="citySearch" class="search-box" placeholder="도시 검색 (예: 수원시)">
+    <button onclick="searchCity()">검색</button>
+</div>
 <div id="map"></div>
 
-<%
-    Connection conn = null;
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    List<String[]> restaurantData = new ArrayList<>();
-
-    try {
-        String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
-        String dbID = "root";
-        String dbPassword = "1234";
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
-
-        String SQL = "SELECT SIGUN_NM, RESTRT_NM, REPRSNT_FOOD_NM, REFINE_WGS84_LAT, REFINE_WGS84_LOGT FROM restaurant_info";
-        pstmt = conn.prepareStatement(SQL);
-        rs = pstmt.executeQuery();
-
-        while (rs.next()) {
-            String[] data = {
-                rs.getString("SIGUN_NM"),
-                rs.getString("RESTRT_NM"),
-                rs.getString("REPRSNT_FOOD_NM"),
-                rs.getString("REFINE_WGS84_LAT"),
-                rs.getString("REFINE_WGS84_LOGT")
-            };
-            restaurantData.add(data);
+<%!
+    public String getRestaurantData(String sigunNm) {
+        try {
+            String baseUrl = "https://openapi.gg.go.kr/PlaceThatDoATasteyFoodSt";
+            String apiKey = "6f58f277adc64ca9944e2b5275530ebb"; // 실제 API 키로 변경 필요
+            
+            StringBuilder urlBuilder = new StringBuilder(baseUrl);
+            urlBuilder.append("?Key=").append(URLEncoder.encode(apiKey, "UTF-8"));
+            urlBuilder.append("&Type=json");
+            urlBuilder.append("&pIndex=1");
+            urlBuilder.append("&pSize=1000");
+            
+            if(sigunNm != null && !sigunNm.trim().isEmpty()) {
+                urlBuilder.append("&SIGUN_NM=").append(URLEncoder.encode(sigunNm, "UTF-8"));
+            }
+            
+            URL url = new URL(urlBuilder.toString());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            
+            BufferedReader rd;
+            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            } else {
+                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            }
+            
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            rd.close();
+            conn.disconnect();
+            
+            return sb.toString();
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        if (rs != null) try { rs.close(); } catch (Exception e) {}
-        if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
-        if (conn != null) try { conn.close(); } catch (Exception e) {}
     }
+%>
+
+<%
+    String cityParam = request.getParameter("city");
+    String jsonData = getRestaurantData(cityParam);
 %>
 
 <script>
     var map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(36.5, 127.5),
-        zoom: 7
+        center: new naver.maps.LatLng(37.4138, 127.5183), // 경기도 중심
+        zoom: 11
     });
 
-    var restaurants = [
-        <% for (String[] data : restaurantData) { %>
-        {
-            sigun: '<%= data[0] %>',
-            name: '<%= data[1] %>',
-            food: '<%= data[2] %>',
-            lat: <%= data[3] %>,
-            lng: <%= data[4] %>
-        },
-        <% } %>
-    ];
-
+    var restaurants = [];
     var markers = [];
-    restaurants.forEach(function (restaurant) {
-        var marker = new naver.maps.Marker({
-            position: new naver.maps.LatLng(restaurant.lat, restaurant.lng),
-            map: map,
-            title: restaurant.name,
-            icon: {
-                content: '<div style="color: red; font-size: 20px; font-weight: bold;">❤️</div>',
-                anchor: new naver.maps.Point(10, 10)
+
+    <% if(jsonData != null) { %>
+        try {
+            var jsonObj = <%= jsonData %>;
+            if(jsonObj.PlaceThatDoATasteyFoodSt && 
+               jsonObj.PlaceThatDoATasteyFoodSt[1] && 
+               jsonObj.PlaceThatDoATasteyFoodSt[1].row) {
+                
+                restaurants = jsonObj.PlaceThatDoATasteyFoodSt[1].row.map(function(item) {
+                    return {
+                        name: item.RESTRT_NM,
+                        sigun: item.SIGUN_NM,
+                        food: item.REPRSNT_FOOD_NM,
+                        lat: parseFloat(item.REFINE_WGS84_LAT),
+                        lng: parseFloat(item.REFINE_WGS84_LOGT),
+                        addr: item.REFINE_ROADNM_ADDR,
+                        tel: item.TASTFDPLC_TELNO
+                    };
+                });
+            }
+        } catch(e) {
+            console.error("데이터 파싱 에러:", e);
+        }
+    <% } %>
+
+    function createMarkers(filteredRestaurants) {
+        // 기존 마커 제거
+        markers.forEach(function(marker) {
+            marker.setMap(null);
+        });
+        markers = [];
+
+        var bounds = new naver.maps.LatLngBounds();
+        
+        // 새로운 마커 생성
+        filteredRestaurants.forEach(function(restaurant) {
+            if(restaurant.lat && restaurant.lng) {
+                var position = new naver.maps.LatLng(restaurant.lat, restaurant.lng);
+                
+                var marker = new naver.maps.Marker({
+                    position: position,
+                    map: map,
+                    icon: {
+                        content: '<div style="color: red; font-size: 20px;">❤️</div>',
+                        anchor: new naver.maps.Point(10, 10)
+                    }
+                });
+
+                var infoWindow = new naver.maps.InfoWindow({
+                    content: '<div style="padding:10px;min-width:200px;line-height:150%;">' +
+                            '<h4>' + restaurant.name + '</h4>' +
+                            '<p>지역: ' + restaurant.sigun + '</p>' +
+                            '<p>대표 메뉴: ' + restaurant.food + '</p>' +
+                            '<p>주소: ' + restaurant.addr + '</p>' +
+                            '<p>전화: ' + restaurant.tel + '</p>' +
+                            '</div>'
+                });
+
+                naver.maps.Event.addListener(marker, 'click', function() {
+                    if (infoWindow.getMap()) {
+                        infoWindow.close();
+                    } else {
+                        infoWindow.open(map, marker);
+                    }
+                });
+
+                bounds.extend(position);
+                markers.push(marker);
             }
         });
 
-        naver.maps.Event.addListener(marker, 'click', function () {
-            map.setCenter(new naver.maps.LatLng(restaurant.lat, restaurant.lng));
-            map.setZoom(15);
-        });
+        if(markers.length > 0) {
+            map.fitBounds(bounds);
+        }
+    }
 
-        markers.push(marker);
+    function searchCity() {
+        var searchTerm = document.getElementById('citySearch').value.trim();
+        var filteredRestaurants = restaurants.filter(function(restaurant) {
+            return restaurant.sigun.includes(searchTerm);
+        });
+        
+        if(filteredRestaurants.length > 0) {
+            createMarkers(filteredRestaurants);
+        } else {
+            alert('검색된 맛집이 없습니다.');
+        }
+    }
+
+    document.getElementById('citySearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchCity();
+        }
     });
 
-    function moveToRegion(region, lat, lng) {
-        map.setCenter(new naver.maps.LatLng(lat, lng));
-        map.setZoom(12); 
-
-        markers.forEach(function (marker) {
-            var title = marker.getTitle(); 
-            if (title.includes(region)) {
-                marker.setIcon({
-                    content: '<div style="color: blue; font-size: 20px; font-weight: bold;">💙</div>' 
-                });
-            } else {
-                marker.setIcon({
-                    content: '<div style="color: red; font-size: 20px; font-weight: bold;">❤️</div>'
-                });
-            }
-        });
+    // 초기 마커 생성
+    if(restaurants.length > 0) {
+        createMarkers(restaurants);
     }
 </script>
+
 </body>
 </html>
