@@ -4,10 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestauarantDAO {
+public class RestaurantDAO {
     private Connection conn;
 
-    public RestauarantDAO() {
+    public RestaurantDAO() {
         try {
             String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
             String dbID = "root";
@@ -40,5 +40,21 @@ public class RestauarantDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public void insertRestaurant(Restaurant restaurant) {
+        String SQL = "INSERT INTO restaurant_info (region, name, address, phone, la, lo) VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            pstmt.setString(1, restaurant.getRegion());
+            pstmt.setString(2, restaurant.getName());
+            pstmt.setString(3, restaurant.getAddress());
+            pstmt.setString(4, restaurant.getPhone());
+            pstmt.setDouble(5, restaurant.getLatitude());
+            pstmt.setDouble(6, restaurant.getLongitude());
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
