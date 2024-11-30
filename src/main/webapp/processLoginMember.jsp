@@ -13,7 +13,7 @@
 %>
     <script>
         alert("로그인에 성공했습니다.");
-        window.location.href = "homs.jsp";
+        window.location.href = "home.jsp";
     </script>
 <%
     } else {
