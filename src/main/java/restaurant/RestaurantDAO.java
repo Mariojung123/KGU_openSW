@@ -11,7 +11,7 @@ public class RestaurantDAO {
         try {
             String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
             String dbID = "root";
-            String dbPassword = "12";
+            String dbPassword = "1234";
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
         } catch (Exception e) {
@@ -21,20 +21,20 @@ public class RestaurantDAO {
 
     public List<Restaurant> getRestaurantsByRegion(String region) {
         List<Restaurant> list = new ArrayList<>();
-        String SQL = "SELECT * FROM restaurant_info WHERE region = ?";
-        try {
-            PreparedStatement pstmt = conn.prepareStatement(SQL);
+        String SQL = "SELECT * FROM restaurant WHERE region = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setString(1, region);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                list.add(new Restaurant(
-                    rs.getString("region"),
-                    rs.getString("name"),
-                    rs.getString("address"),
-                    rs.getString("phone"),
-                    rs.getDouble("la"),
-                    rs.getDouble("lo")
-                ));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Restaurant(
+                        rs.getString("region"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getDouble("la"),
+                        rs.getDouble("lo")
+                    ));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,10 +42,29 @@ public class RestaurantDAO {
         return list;
     }
 
+    public boolean isDuplicate(Restaurant restaurant) {
+        String SQL = "SELECT COUNT(*) FROM restaurant WHERE name = ? AND address = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setString(1, restaurant.getName());
+            pstmt.setString(2, restaurant.getAddress());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void insertRestaurant(Restaurant restaurant) {
-        String SQL = "INSERT INTO restaurant_info (region, name, address, phone, la, lo) VALUES (?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement pstmt = conn.prepareStatement(SQL);
+        if (isDuplicate(restaurant)) {
+            return;
+        }
+
+        String SQL = "INSERT INTO restaurant (region, name, address, phone, la, lo) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setString(1, restaurant.getRegion());
             pstmt.setString(2, restaurant.getName());
             pstmt.setString(3, restaurant.getAddress());

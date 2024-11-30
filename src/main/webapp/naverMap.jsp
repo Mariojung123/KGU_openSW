@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.io.*, java.net.*, org.json.*" %>
+<%@ page import="java.io.*, java.net.*, org.json.*, restaurant.RestaurantDAO, restaurant.Restaurant" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -86,6 +86,35 @@
 <%
     String cityParam = request.getParameter("city");
     String jsonData = getRestaurantData(cityParam);
+    RestaurantDAO restaurantDAO = new RestaurantDAO();
+    if (jsonData != null) {
+        try {
+            JSONObject jsonObj = new JSONObject(jsonData);
+            if (jsonObj.has("PlaceThatDoATasteyFoodSt") &&
+                jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt").length() > 1 &&
+                jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt").getJSONObject(1).has("row")) {
+                
+                JSONArray rows = jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt")
+                                       .getJSONObject(1)
+                                       .getJSONArray("row");
+                for (int i = 0; i < rows.length(); i++) {
+                    JSONObject item = rows.getJSONObject(i);
+                    
+                    Restaurant restaurant = new Restaurant(
+                        item.getString("SIGUN_NM"),
+                        item.getString("RESTRT_NM"),
+                        item.optString("REFINE_ROADNM_ADDR", ""),
+                        item.optString("TASTFDPLC_TELNO", ""),
+                        item.optDouble("REFINE_WGS84_LAT", 0.0),
+                        item.optDouble("REFINE_WGS84_LOGT", 0.0)
+                    );
+                    restaurantDAO.insertRestaurant(restaurant);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 %>
 
 <script>
@@ -122,19 +151,15 @@
     <% } %>
 
     function createMarkers(filteredRestaurants) {
-        // 기존 마커 제거
         markers.forEach(function(marker) {
             marker.setMap(null);
         });
         markers = [];
 
         var bounds = new naver.maps.LatLngBounds();
-        
-        // 새로운 마커 생성
         filteredRestaurants.forEach(function(restaurant) {
             if(restaurant.lat && restaurant.lng) {
                 var position = new naver.maps.LatLng(restaurant.lat, restaurant.lng);
-                
                 var marker = new naver.maps.Marker({
                     position: position,
                     map: map,
@@ -191,7 +216,6 @@
         }
     });
 
-    // 초기 마커 생성
     if(restaurants.length > 0) {
         createMarkers(restaurants);
     }

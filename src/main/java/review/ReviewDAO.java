@@ -10,7 +10,7 @@ public class ReviewDAO {
 
     private String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
     private String dbID = "root";
-    private String dbPassword = "12";
+    private String dbPassword = "1234";
 
     public ReviewDAO() {
         try {
