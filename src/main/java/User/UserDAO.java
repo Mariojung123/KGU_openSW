@@ -17,7 +17,7 @@ public class UserDAO {
 		try {
 			String dbURL = "jdbc:mysql://localhost:3306/KGU_openSW";
 			String dbID = "root";
-			String dbPassword = "12";
+			String dbPassword = "1234";
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(dbURL, dbID, dbPassword);
 		} catch (Exception e) {
@@ -37,24 +37,6 @@ public class UserDAO {
 			e.printStackTrace();
 		}
 		return "";
-	}
-	
-	public int getNext() {
-		String SQL = "SELECT userId FROM user ORDER BY userId DESC";
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			rs = pstmt.executeQuery();
-			if (rs.next()) {
-				return rs.getInt(1) + 1;
-			}
-			return 1;
-		} catch (Exception e) {
-			e.printStackTrace();
-	    } finally {
-	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
-	    }
-		return -1; // 데이터베이스 오류
 	}
 	
 	public User findOne(Long userId) {
@@ -83,6 +65,31 @@ public class UserDAO {
 		return null;
 	}
 	
+	public UserDTO findByLoginId(String loginId) {
+	    String SQL = "SELECT * FROM user WHERE loginId = ?";
+	    try {
+	        pstmt = conn.prepareStatement(SQL);
+	        pstmt.setString(1, loginId);
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            UserDTO userDTO = new UserDTO();
+	            userDTO.setLoginId(rs.getString("loginId"));
+	            userDTO.setPassword(rs.getString("password"));
+	            userDTO.setName(rs.getString("name"));
+	            userDTO.setEmail(rs.getString("email"));
+	            return userDTO;
+	        }
+	        return null;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+	    }
+	    return null;
+	}
+
+	
 	public List<User> findAll() {
 		List<User> users = new ArrayList<>();
 		String SQL = "SELECT * FROM user";
@@ -110,23 +117,38 @@ public class UserDAO {
 	}
 	
 	public int createUser(UserDTO dto) {
-		String SQL = "INSERT INTO user (userId, loginId, password, name, email, createdDate) VALUES (?, ?, ?, ?, ?, ?)";
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			pstmt.setLong(1, getNext());
-			pstmt.setString(2, dto.getLoginId());
-			pstmt.setString(3, dto.getPassword());
-			pstmt.setString(4, dto.getName());
-			pstmt.setString(5, dto.getEmail());
-			pstmt.setString(6, getDate());
-			return pstmt.executeUpdate();
-		} catch (Exception e) {
-			e.printStackTrace();
+	    String insertSQL = "INSERT INTO user (loginId, password, name, email, createdDate) VALUES (?, ?, ?, ?, ?)";
+	    String selectSQL = "SELECT NOW()"; // 날짜를 가져오는 쿼리
+	    
+	    try {
+	        // 날짜 먼저 가져오기
+	        pstmt = conn.prepareStatement(selectSQL);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        String currentDate = null;
+	        if (rs.next()) {
+	            currentDate = rs.getString(1);
+	        }
+	        
+	        pstmt.close();
+	        pstmt = conn.prepareStatement(insertSQL);
+	        pstmt = conn.prepareStatement(insertSQL);
+	        pstmt.setString(1, dto.getLoginId());
+	        pstmt.setString(2, dto.getPassword());
+	        pstmt.setString(3, dto.getName());
+	        pstmt.setString(4, dto.getEmail());
+	        pstmt.setString(5, currentDate);
+	        int result = pstmt.executeUpdate();
+
+	        return result;
+	    } catch (Exception e) {
+	        e.printStackTrace();
 	    } finally {
 	        try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
 	    }
-		return -1;
+	    return -1;
 	}
+
 	
 	public void close() {
 	    try {

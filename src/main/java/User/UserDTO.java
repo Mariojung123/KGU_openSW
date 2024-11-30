@@ -5,7 +5,6 @@ public class UserDTO {
 	private String password;
 	private String name;
 	private String email;
-	private String createdDate;
 	
 	public String getLoginId() {
 		return loginId;
@@ -39,11 +38,4 @@ public class UserDTO {
 		this.email = email;
 	}
 	
-	public String getCreatedDate() {
-		return createdDate;
-	}
-	
-	public void setCreatedDate(String createdDate) {
-		this.createdDate = createdDate;
-	}
 }
