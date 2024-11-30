@@ -1,38 +1,16 @@
-/* 기본 설정 */
+/* home.css */
+@import url('common.css');
+
 body {
-    margin: 0; 
-    padding: 0;
-    background-image: url('../img/home.png'); 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    height: 100vh; 
-    overflow: hidden; 
+    background-image: url('../img/home.png');
+    overflow: hidden;
 }
 
-/* 네비게이션 바 스타일 */
-nav {
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px; 
-    background-color: rgba(0, 0, 0, 0.8); 
-    color: white;
-    padding: 10px 20px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5); 
-    z-index: 10; 
-}
-
-/* 본문 내용 */
 .content {
-    padding-top: 60px; 
-    text-align: center; 
+    text-align: center;
     color: white;
-    font-family: Arial, sans-serif; 
 }
 
-/* 기타 텍스트 스타일 */
 h1 {
     margin-top: 20px;
     font-size: 36px;
@@ -41,14 +19,4 @@ h1 {
 
 p {
     font-size: 18px;
-}
-
-/* 반응형 네비게이션 바 */
-@media (max-width: 768px) {
-    nav {
-        padding: 10px;
-    }
-    .content {
-        padding-top: 70px; 
-    }
 }

@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="css/login.css"/>
+  <link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-    <jsp:include page="/component/navbar.jsp" />
+<jsp:include page="navbar.jsp" />
+
     <div class="login-container">
         <div class="login-form">
             <h3 class="form-heading">Login</h3>
@@ -29,7 +31,7 @@
                     <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
                 </div>
                 <button class="btn btn-primary" type="submit">Login</button>
-                <button class="btn btn-secondary" type="button" onclick="location.href='addMember.jsp'">Sign Up</button>
+                <button class="btn btn-secondary" type="button" onclick="location.href='signup.jsp'">Sign Up</button>
             </form>
         </div>
     </div>

@@ -1,0 +1,103 @@
+/* 공통 네비게이션 바 스타일 */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.8); /* 반투명 배경 */
+    display: flex;
+    justify-content: space-between; /* 양쪽 정렬 */
+    align-items: center; /* 수직 가운데 정렬 */
+    height: 60px; /* 고정 높이 */
+    padding: 0 20px; /* 좌우 여백 */
+    position: fixed; /* 고정 위치 */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* 그림자 */
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+/* 로고 이미지 */
+.navbar .logo {
+    position: absolute;
+    left: 20px;
+}
+
+.navbar .logo img {
+    width: 40px; /* 고정 크기 */
+    height: 40px;
+    object-fit: cover; /* 비율 유지 */
+}
+
+/* 네비게이션 메뉴 */
+.navbar-center {
+    list-style-type: none;
+    display: flex;
+    justify-content: center; /* 중앙 정렬 */
+    margin: 0; /* 상하 좌우 여백 제거 */
+    padding: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.navbar-center li {
+    margin: 0 15px; /* 메뉴 간격 */
+}
+
+.navbar-center li a,
+.navbar-right a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: white;
+    font-size: 18px; /* 고정 글자 크기 */
+    padding: 10px;
+    transition: all 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+.navbar-center li a:hover,
+.navbar-right a:hover {
+    background-color: #ecfaff; /* 배경색 변경 */
+    color: black; /* 글자색 변경 */
+}
+
+/* 오른쪽 메뉴 */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 20px;
+}
+
+/* 본문 내용의 상단 여백 */
+body {
+    margin: 0;
+    padding: 0;
+    padding-top: 60px; /* 네비게이션 바 높이만큼 여백 추가 */
+    font-family: Arial, sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 10px;
+    }
+    .navbar .logo {
+        left: 10px;
+    }
+    .navbar-center {
+        position: static;
+        transform: none;
+        justify-content: center;
+        flex: 1;
+    }
+    .navbar-center li {
+        margin: 0 10px;
+    }
+    .navbar-center li a {
+        font-size: 16px;
+    }
+    .navbar-right {
+        right: 10px;
+    }
+}

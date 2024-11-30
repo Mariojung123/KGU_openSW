@@ -5,19 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
-    <link rel="stylesheet" href="css/signup.css"/>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/signup.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
 
 <%-- 네비게이션 바 --%>
-<jsp:include page="/component/navbar.jsp" />
+<jsp:include page="navbar.jsp" />
+
 
 <%-- 회원가입 폼 --%>
 <div class="signup-container">
     <div class="signup-form">
         <h2 class="form-heading">회원가입</h2>
-        <form action="processAddMember.jsp" method="post">
+        <form action="processAddMember.jsp" method="post" id="signupForm">
             <!-- Login ID -->
             <div class="form-group">
                 <label for="loginId">아이디</label>
@@ -44,7 +46,8 @@
 
             <!-- Submit Button -->
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">회원가입</button>
+                <!-- '등록' 버튼 클릭 시 자바스크립트로 로그인 페이지로 이동 -->
+                <button type="submit" class="btn btn-primary" onclick="redirectToLogin(event)">등록</button>
             </div>
         </form>
     </div>
@@ -52,7 +55,13 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    // 성조야 id 중복기능 추가할거면 여기다가 해라 
+    // '등록' 버튼 클릭 시 login.jsp로 이동하는 함수
+    function redirectToLogin(event) {
+        event.preventDefault(); // 폼 전송을 막음
+        // 폼을 먼저 제출한 후, login.jsp로 이동
+        document.getElementById("signupForm").submit(); // 폼 제출
+        window.location.href = "login.jsp"; // 로그인 페이지로 이동
+    }
 </script>
 
 </body>
