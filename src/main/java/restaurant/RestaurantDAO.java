@@ -19,6 +19,28 @@ public class RestaurantDAO {
         }
     }
 
+    public List<Restaurant> getAllRestaurants() {
+        List<Restaurant> list = new ArrayList<>();
+        String SQL = "SELECT * FROM restaurant";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Restaurant(
+                    rs.getString("region"),
+                    rs.getString("name"),
+                    rs.getString("address"),
+                    rs.getString("phone"),
+                    rs.getDouble("la"),
+                    rs.getDouble("lo"),
+                    rs.getString("category") // 카테고리 추가
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public List<Restaurant> getRestaurantsByRegion(String region) {
         List<Restaurant> list = new ArrayList<>();
         String SQL = "SELECT * FROM restaurant WHERE region = ?";
@@ -32,7 +54,8 @@ public class RestaurantDAO {
                         rs.getString("address"),
                         rs.getString("phone"),
                         rs.getDouble("la"),
-                        rs.getDouble("lo")
+                        rs.getDouble("lo"),
+                        rs.getString("category") 
                     ));
                 }
             }
@@ -63,7 +86,7 @@ public class RestaurantDAO {
             return;
         }
 
-        String SQL = "INSERT INTO restaurant (region, name, address, phone, la, lo) VALUES (?, ?, ?, ?, ?, ?)";
+        String SQL = "INSERT INTO restaurant (region, name, address, phone, la, lo, category) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setString(1, restaurant.getRegion());
             pstmt.setString(2, restaurant.getName());
@@ -71,6 +94,7 @@ public class RestaurantDAO {
             pstmt.setString(4, restaurant.getPhone());
             pstmt.setDouble(5, restaurant.getLatitude());
             pstmt.setDouble(6, restaurant.getLongitude());
+            pstmt.setString(7, restaurant.getCategory());
             pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
