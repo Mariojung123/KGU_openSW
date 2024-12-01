@@ -32,7 +32,7 @@ public class RestaurantDAO {
                     rs.getString("phone"),
                     rs.getDouble("la"),
                     rs.getDouble("lo"),
-                    rs.getString("category") // 카테고리 추가
+                    rs.getString("category")
                 ));
             }
         } catch (Exception e) {
@@ -99,5 +99,49 @@ public class RestaurantDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public List<Restaurant> getRestaurantsByCategory(String category) {
+        List<Restaurant> list = new ArrayList<>();
+        String SQL = "SELECT * FROM restaurant WHERE category = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setString(1, category);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Restaurant(
+                        rs.getString("region"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getDouble("la"),
+                        rs.getDouble("lo"),
+                        rs.getString("category")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    public List<Restaurant> getRecommendRestaurants() {
+        List<Restaurant> list = new ArrayList<>();
+        String SQL = "SELECT * FROM restaurant";
+        try (PreparedStatement pstmt = conn.prepareStatement(SQL);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Restaurant(
+                    rs.getString("region"),
+                    rs.getString("name"),
+                    rs.getString("address"),
+                    rs.getString("phone"),
+                    rs.getDouble("la"),
+                    rs.getDouble("lo"),
+                    rs.getString("category")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
