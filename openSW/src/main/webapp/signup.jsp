@@ -14,7 +14,6 @@
 <%-- 네비게이션 바 --%>
 <jsp:include page="navbar.jsp" />
 
-
 <%-- 회원가입 폼 --%>
 <div class="signup-container">
     <div class="signup-form">
