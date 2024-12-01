@@ -59,7 +59,7 @@
         event.preventDefault(); // 폼 전송을 막음
         // 폼을 먼저 제출한 후, login.jsp로 이동
         document.getElementById("signupForm").submit(); // 폼 제출
-        window.location.href = "login.jsp"; // 로그인 페이지로 이동
+        //window.location.href = "login.jsp"; // 로그인 페이지로 이동
     }
 </script>
 

@@ -4,40 +4,40 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>경기도 맛집 지도</title>
+	    <link rel="stylesheet" href="css/common.css">
+		<link rel="stylesheet" href="css/naverMap.css">
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=es3iw874ms"></script>
-    <style>
-        #map { width: 100%; height: 800px; }
-        .controls {
-            margin: 10px;
-            padding: 10px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .search-box {
-            padding: 8px;
-            margin-right: 10px;
-            width: 200px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            padding: 8px 15px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            background-color: #0077ff;
-            color: white;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
-<div class="controls">
-    <input type="text" id="citySearch" class="search-box" placeholder="도시 검색 (예: 수원시)">
-    <button onclick="searchCity()">검색</button>
-</div>
-<div id="map"></div>
+    <nav>
+<jsp:include page="navbar.jsp" />
+    </nav>
+    
+    <div class="content">
+        <div id="map-container">
+            <div class="controls">
+                <input type="text" id="citySearch" class="search-box" placeholder="도시 검색 (예: 수원시)">
+                <button onclick="searchCity()">검색</button>
+            </div>
+            <div id="map"></div>
+        </div>
+        
+        <div class="restaurant-list-container">
+            <h2>주변 음식점</h2>
+            <div id="restaurantList"></div>
+        </div>
+    </div>
+
+    <div id="restaurantModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h2 id="modalName"></h2>
+            <img id="modalImage" src="" alt="음식점 이미지" />
+            <p id="modalDescription"></p>
+        </div>
+    </div>
 
 <%!
     public String getRestaurantData(String sigunNm) {
@@ -209,7 +209,35 @@
             alert('검색된 맛집이 없습니다.');
         }
     }
+    function updateRestaurantList(restaurants) {
+        var restaurantList = document.getElementById('restaurantList');
+        restaurantList.innerHTML = '';
 
+        restaurants.forEach(function(restaurant) {
+            var card = document.createElement('div');
+            card.className = 'restaurant-card';
+            card.innerHTML = '<h3><a href="#" onclick="showRestaurantInfo(' + JSON.stringify(restaurant) + ')">' + restaurant.name + '</a></h3>';
+            restaurantList.appendChild(card);
+        });
+    }
+
+    function showRestaurantInfo(restaurant) {
+        var modal = document.getElementById('restaurantModal');
+        var modalName = document.getElementById('modalName');
+        var modalDescription = document.getElementById('modalDescription');
+        var modalImage = document.getElementById('modalImage');
+
+        modalName.textContent = restaurant.name;
+        modalDescription.textContent = '지역: ' + restaurant.sigun + '\n대표 메뉴: ' + restaurant.food + '\n주소: ' + restaurant.addr + '\n전화: ' + restaurant.tel;
+        modalImage.src = restaurant.image || '';
+
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        var modal = document.getElementById('restaurantModal');
+        modal.style.display = 'none';
+    }
     document.getElementById('citySearch').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             searchCity();
@@ -218,6 +246,7 @@
 
     if(restaurants.length > 0) {
         createMarkers(restaurants);
+        updateRestaurantList(restaurants);
     }
 </script>
 
