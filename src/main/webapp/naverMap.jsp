@@ -131,19 +131,35 @@
             card.setAttribute('data-lng', restaurant.lng);
             card.setAttribute('data-index', index); // 마커 배열과 매칭
             card.innerHTML = '<h3>' + restaurant.name + '</h3>' +
-                             '<p>지역: ' + restaurant.sigun + '</p>' +
-                             '<p>주소: ' + restaurant.addr + '</p>' +
-                             '<p>전화: ' + restaurant.tel + '</p>';
+				            '<p>지역: ' + restaurant.sigun + '</p>' +
+				            '<p>주소: ' + restaurant.addr + '</p>' +
+				            '<p>전화: ' + restaurant.tel + '</p>' +
+				            '<div style="text-align: right;">' +  // 오른쪽 정렬을 위한 div 추가
+				            '<button id="place-button" style="margin-right: 10px;">위치 보기</button>' +
+				            '<button id="review-button">리뷰 보기</button>' +
+				            '</div>';  // div 닫기
 
-            card.addEventListener('click', function() {
-                moveToRestaurant(index);
-                openModal(restaurant.restaurantId);
-            });
+
+
+			//버튼 클릭 리스너 등록
+			const placebutton = card.querySelector('#place-button');
+			if (placebutton) {
+				placebutton.addEventListener('click', function() {
+			    	moveToRestaurant(index);
+			    });
+			}
+            
+           
+            const reviewbutton = card.querySelector('#review-button');
+			if (reviewbutton) {
+				reviewbutton.addEventListener('click', function() {
+	                openModal(restaurant.restaurantId);
+	            });
+			}
 
             restaurantList.appendChild(card);
         });
     }
-
 
     function openModal(restaurantId) {
         fetch('modal/review.jsp?restaurantId=' + restaurantId)
@@ -170,7 +186,7 @@
             map.setZoom(15);
 
         
-            naver.maps.Event.trigger(marker, 'click');
+            /* naver.maps.Event.trigger(marker, 'click'); */
         }
     }
 

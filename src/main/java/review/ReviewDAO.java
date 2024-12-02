@@ -173,20 +173,23 @@ public class ReviewDAO {
      * 리뷰 삭제하기 
      * @param reviewId (Long)
      * @param userId (Long)
-     * @return int
+     * @return int -> boolean
      */
-    public int delete(Long reviewId, Long userId) {
+    public boolean delete(Long reviewId, Long userId) {
         String SQL = "DELETE FROM review WHERE reviewId = ? AND userId = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setLong(1, reviewId);
             pstmt.setLong(2, userId);
-            return pstmt.executeUpdate();
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // 삭제된 행 수가 0보다 크면 true 반환
         } catch (SQLException e) {
             e.printStackTrace();
+            return false; // 예외 발생 시 false 반환
         }
-        return -1;
     }
+
     
     /**
      * 특정 리뷰 평점 구하기

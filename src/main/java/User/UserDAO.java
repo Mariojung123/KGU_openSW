@@ -18,7 +18,7 @@ public class UserDAO {
 
     public UserDAO() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -75,6 +75,53 @@ public class UserDAO {
         }
         return null;
     }
+    
+    public User findUserByLoginId(String loginId) {
+        String SQL = "SELECT * FROM user WHERE loginId = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setString(1, loginId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                   User user = new User();
+                   user.setUserId(rs.getLong("userId")); 
+                    user.setLoginId(rs.getString("loginId"));
+                    user.setPassword(rs.getString("password"));
+                    user.setName(rs.getString("name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setCreatedDate(rs.getString("createdDate"));
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    
+    
+    public String findUserId(String loginId) {
+        String SQL = "SELECT userId FROM user WHERE loginId = ?";
+        String userId;
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setString(1, loginId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                	userId = String.valueOf(rs.getLong("userId"));
+                    return userId;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    
+    
+
 
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
