@@ -30,6 +30,18 @@
         </div>
     </div>
 
+    <!-- 모달 구조 -->
+	<div id="myModal" class="modal">
+	    <div class="modal-content">
+	        <span class="close" id="closeModal">&times;</span>
+	        <h3 id="modalTitle"></h3>
+	        <div id="modalRegion"></div> <!-- 리뷰가 삽입될 부분 -->
+	    </div>
+	</div>
+
+
+
+
 <%
     RestaurantDAO restaurantDAO = new RestaurantDAO();
     List<Restaurant> restaurants = restaurantDAO.getAllRestaurants();
@@ -37,6 +49,7 @@
     JSONArray restaurantJsonArray = new JSONArray();
     for (Restaurant restaurant : restaurants) {
         JSONObject restaurantJson = new JSONObject();
+        restaurantJson.put("restaurantId", restaurant.getRestaurantId());
         restaurantJson.put("name", restaurant.getName());
         restaurantJson.put("sigun", restaurant.getRegion());
         restaurantJson.put("addr", restaurant.getAddress());
@@ -76,21 +89,8 @@
                     }
                 });
 
-                var infoWindow = new naver.maps.InfoWindow({
-                    content: '<div style="padding:10px;min-width:200px;line-height:150%;">' +
-                            '<h4>' + restaurant.name + '</h4>' +
-                            '<p>지역: ' + restaurant.sigun + '</p>' +
-                            '<p>주소: ' + restaurant.addr + '</p>' +
-                            '<p>전화: ' + restaurant.tel + '</p>' +
-                            '</div>'
-                });
-
                 naver.maps.Event.addListener(marker, 'click', function() {
-                    if (infoWindow.getMap()) {
-                        infoWindow.close();
-                    } else {
-                        infoWindow.open(map, marker);
-                    }
+                    openModal(restaurant.restaurantId);
                 });
 
                 bounds.extend(position);
@@ -128,15 +128,40 @@
                              '<p>지역: ' + restaurant.sigun + '</p>' +
                              '<p>주소: ' + restaurant.addr + '</p>' +
                              '<p>전화: ' + restaurant.tel + '</p>';
+
+            card.addEventListener('click', function() {
+                openModal(restaurant.restaurantId);
+            });
+
             restaurantList.appendChild(card);
         });
     }
+
+    function openModal(restaurantId) {
+        fetch('modal/review.jsp?restaurantId=' + restaurantId)
+            .then(response => response.text())  // HTML로 변환
+            .then(data => {
+                // 모달 제목 설정
+                document.getElementById('modalTitle').innerHTML = '리뷰 목록';
+                document.getElementById('modalRegion').innerHTML = data; // HTML 데이터 삽입
+
+                // 모달 보여주기
+                document.getElementById('myModal').style.display = "block";
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+
 
     if (restaurants.length > 0) {
         createMarkers(restaurants);
         updateRestaurantList(restaurants);
     }
+
 </script>
+<script type="text/javascript" src="js/modal.js"></script>
 
 </body>
 </html>
+
+

@@ -26,6 +26,7 @@ public class RestaurantDAO {
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 list.add(new Restaurant(
+                	rs.getLong("restaurantId"),
                     rs.getString("region"),
                     rs.getString("name"),
                     rs.getString("address"),
