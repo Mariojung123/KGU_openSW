@@ -13,7 +13,7 @@ spec:
       labels:
         app: kgu-opensw
       annotations:
-        buildTime: "20241202-100014"  # 현재 시간을 주석으로 추가
+        buildTime: "20241202-101010"
     spec:
       containers:
       - name: tomcat
