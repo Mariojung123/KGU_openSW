@@ -7,6 +7,7 @@ public class Review {
 	private String content;
 	private double rating;
 	private Long userId;
+	private Long restaurantId;
 	private String createdDate;
 	
 	public Review() {
@@ -19,6 +20,14 @@ public class Review {
 	
 	public void setReviewId(Long id) {
 		this.reviewId = id;
+	}
+	
+	public Long getRestaurantId() {
+		return restaurantId;
+	}
+	
+	public void setRestaurantId(Long restaurantId) {
+		this.restaurantId = restaurantId;
 	}
 	
 	public String getTitle() {

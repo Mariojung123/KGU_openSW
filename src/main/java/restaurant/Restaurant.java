@@ -1,6 +1,7 @@
 package restaurant;
 
 public class Restaurant {
+	private Long restaurantId;
     private String region;
     private String name;
     private String address;
@@ -18,14 +19,16 @@ public class Restaurant {
         this.la = la;
         this.lo = lo;
     }
-
+    
+    public Long getRestaurantId() { return restaurantId; }
     public String getRegion() { return region; }
     public String getName() { return name; }
     public String getAddress() { return address; }
     public String getPhone() { return phone; }
     public double getLatitude() { return la; }
     public double getLongitude() { return lo; }
-
+    
+    public void setRestaurantId(Long restaurantId) { this.restaurantId = restaurantId; }
     public void setRegion(String region) { this.region = region; }
     public void setName(String name) { this.name = name; }
     public void setAddress(String address) { this.address = address; }
