@@ -105,37 +105,45 @@
 
     function searchCity() {
         var searchTerm = document.getElementById('citySearch').value.trim();
+
+
         var filteredRestaurants = restaurants.filter(function(restaurant) {
-            return restaurant.sigun.includes(searchTerm);
+            return restaurant.sigun.includes(searchTerm) || restaurant.name.includes(searchTerm);
         });
 
         if (filteredRestaurants.length > 0) {
-            createMarkers(filteredRestaurants);
-            updateRestaurantList(filteredRestaurants);
+            createMarkers(filteredRestaurants); // 검색 결과로 마커 업데이트
+            updateRestaurantList(filteredRestaurants); // 검색 결과로 리스트 업데이트
         } else {
             alert('검색된 맛집이 없습니다.');
         }
     }
 
+
     function updateRestaurantList(restaurants) {
         var restaurantList = document.getElementById('restaurantList');
         restaurantList.innerHTML = '';
 
-        restaurants.forEach(function(restaurant) {
+        restaurants.forEach(function(restaurant, index) {
             var card = document.createElement('div');
             card.className = 'restaurant-card';
+            card.setAttribute('data-lat', restaurant.lat);
+            card.setAttribute('data-lng', restaurant.lng);
+            card.setAttribute('data-index', index); // 마커 배열과 매칭
             card.innerHTML = '<h3>' + restaurant.name + '</h3>' +
                              '<p>지역: ' + restaurant.sigun + '</p>' +
                              '<p>주소: ' + restaurant.addr + '</p>' +
                              '<p>전화: ' + restaurant.tel + '</p>';
 
             card.addEventListener('click', function() {
+                moveToRestaurant(index);
                 openModal(restaurant.restaurantId);
             });
 
             restaurantList.appendChild(card);
         });
     }
+
 
     function openModal(restaurantId) {
         fetch('modal/review.jsp?restaurantId=' + restaurantId)
@@ -152,6 +160,19 @@
     }
 
 
+    function moveToRestaurant(index) {
+        if (markers[index]) {
+            var marker = markers[index];
+            var position = marker.getPosition();
+
+            
+            map.setCenter(position);
+            map.setZoom(15);
+
+        
+            naver.maps.Event.trigger(marker, 'click');
+        }
+    }
 
     if (restaurants.length > 0) {
         createMarkers(restaurants);
@@ -163,5 +184,3 @@
 
 </body>
 </html>
-
-
