@@ -49,7 +49,7 @@
         	User reviewer = userDAO.findOne(reviewUserId);
 %>			
             <div class="review">
-                <h4 class="review-title"><%=  reviewer.getName() %></h4>
+                <h4 class="review-title"><%=  review.getTitle() %></h4>
                 <p class="review-user"><strong><%= reviewer.getLoginId() %></strong> (Rating: <%= review.getRating() %>)</p>
                 <p class="review-content"><%= review.getContent() %></p>
                 <p class="review-date"><small>작성일: <%= review.getCreatedDate() %></small></p>
