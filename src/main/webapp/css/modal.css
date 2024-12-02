@@ -1,0 +1,67 @@
+.review-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.review {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: box-shadow 0.3s;
+}
+
+.review:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.review-title {
+    font-size: 1.2em;
+    color: #333;
+}
+
+.review-user {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.review-content {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.review-date {
+    color: #888;
+    font-size: 0.8em;
+}
+
+.no-reviews {
+    text-align: center;
+    font-size: 1.2em;
+    color: #888;
+}
+
+.modal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed; /* 화면에 고정 */
+    z-index: 1000; /* 다른 요소 위에 표시 */
+    left: 50%; /* 수평 중앙 정렬 */
+    top: 55%; /* 수직 위치 조정 */
+    transform: translate(-50%, -50%); /* 중앙 정렬을 위한 보정 */
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%; /* 너비를 줄임 */
+    max-width: 500px; /* 최대 너비를 줄임 */
+    height: auto; /* 자동 높이 */
+    max-height: 80vh; /* 최대 높이를 줄임 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤바 표시 */
+    padding: 15px; /* 내부 여백 */
+}
+

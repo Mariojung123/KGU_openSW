@@ -21,6 +21,17 @@ public class Restaurant {
         this.lo = lo;
         this.category = category; 
     }
+    
+    public Restaurant(Long restaurantId, String region, String name, String address, String phone, double la, double lo, String category) {
+    	this.restaurantId = restaurantId;
+        this.region = region;
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.la = la;
+        this.lo = lo;
+        this.category = category; 
+    }
 
     public Long getRestaurantId() { return restaurantId; }
     public String getRegion() { return region; }

@@ -14,7 +14,7 @@ public class ReviewDAO {
 
     public ReviewDAO() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -81,7 +81,7 @@ public class ReviewDAO {
         List<Review> reviews = new ArrayList<>();
         String SQL = "SELECT * FROM review WHERE userId = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setLong(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -102,19 +102,25 @@ public class ReviewDAO {
     public List<Review> findAllByRestaurantId(Long restaurantId) {
         List<Review> reviews = new ArrayList<>();
         String SQL = "SELECT * FROM review WHERE restaurantId = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-            pstmt.setLong(1, restaurantId);
-            try (ResultSet rs = pstmt.executeQuery()) {
+
+        try (Connection conn = getConnection(); 
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {  
+            pstmt.setLong(1, restaurantId);  
+            try (ResultSet rs = pstmt.executeQuery()) {  
                 while (rs.next()) {
-                    reviews.add(mapToReview(rs));
+                    Review review = mapToReview(rs);  // ResultSet에서 데이터를 객체로 변환
+                    reviews.add(review);  // 리스트에 추가
+                    System.out.println("Title: " + review.getTitle());  // 제목 출력
                 }
             }
         } catch (SQLException e) {
+            System.out.println("SQLException 발생: " + e.getMessage());  
             e.printStackTrace();
         }
+
         return reviews;
     }
+
     
     
     /**
