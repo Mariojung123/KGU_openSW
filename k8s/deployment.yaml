@@ -13,7 +13,7 @@ spec:
       labels:
         app: kgu-opensw
       annotations:
-        buildTime: "20241202-101010"
+        buildTime: "20241202-101826"
     spec:
       containers:
       - name: tomcat
