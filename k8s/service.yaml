@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kgu-opensw
-  namespace: cicd
+ name: kgu-opensw
+ namespace: cicd
 spec:
-  type: NodePort
-  ports:
-  - port: 8080
-    targetPort: 8080
-  selector:
-    app: kgu-opensw
+ type: NodePort
+ ports:
+ - port: 8080
+   targetPort: 8080
+ selector:
+   app: kgu-opensw
