@@ -1,20 +1,20 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.io.*, java.net.*, org.json.*, restaurant.RestaurantDAO, restaurant.Restaurant" %>
+<%@ page import="java.util.*, restaurant.RestaurantDAO, restaurant.Restaurant, org.json.*" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>경기도 맛집 지도</title>
-	    <link rel="stylesheet" href="css/common.css">
-		<link rel="stylesheet" href="css/naverMap.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/naverMap.css">
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=es3iw874ms"></script>
 </head>
 <body>
     <nav>
-<jsp:include page="navbar.jsp" />
+        <jsp:include page="navbar.jsp" />
     </nav>
-    
+
     <div class="content">
         <div id="map-container">
             <div class="controls">
@@ -23,97 +23,41 @@
             </div>
             <div id="map"></div>
         </div>
-        
+
         <div class="restaurant-list-container">
             <h2>주변 음식점</h2>
             <div id="restaurantList"></div>
         </div>
     </div>
 
-    <div id="restaurantModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <h2 id="modalName"></h2>
-            <img id="modalImage" src="" alt="음식점 이미지" />
-            <p id="modalDescription"></p>
-        </div>
-    </div>
+    <!-- 모달 구조 -->
+	<div id="myModal" class="modal">
+	    <div class="modal-content">
+	        <span class="close" id="closeModal">&times;</span>
+	        <h3 id="modalTitle"></h3>
+	        <div id="modalRegion"></div> <!-- 리뷰가 삽입될 부분 -->
+	    </div>
+	</div>
 
-<%!
-    public String getRestaurantData(String sigunNm) {
-        try {
-            String baseUrl = "https://openapi.gg.go.kr/PlaceThatDoATasteyFoodSt";
-            String apiKey = "6f58f277adc64ca9944e2b5275530ebb"; // 실제 API 키로 변경 필요
-            
-            StringBuilder urlBuilder = new StringBuilder(baseUrl);
-            urlBuilder.append("?Key=").append(URLEncoder.encode(apiKey, "UTF-8"));
-            urlBuilder.append("&Type=json");
-            urlBuilder.append("&pIndex=1");
-            urlBuilder.append("&pSize=1000");
-            
-            if(sigunNm != null && !sigunNm.trim().isEmpty()) {
-                urlBuilder.append("&SIGUN_NM=").append(URLEncoder.encode(sigunNm, "UTF-8"));
-            }
-            
-            URL url = new URL(urlBuilder.toString());
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            
-            BufferedReader rd;
-            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-            rd.close();
-            conn.disconnect();
-            
-            return sb.toString();
-            
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-%>
+
+
 
 <%
-    String cityParam = request.getParameter("city");
-    String jsonData = getRestaurantData(cityParam);
     RestaurantDAO restaurantDAO = new RestaurantDAO();
-    if (jsonData != null) {
-        try {
-            JSONObject jsonObj = new JSONObject(jsonData);
-            if (jsonObj.has("PlaceThatDoATasteyFoodSt") &&
-                jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt").length() > 1 &&
-                jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt").getJSONObject(1).has("row")) {
-                
-                JSONArray rows = jsonObj.getJSONArray("PlaceThatDoATasteyFoodSt")
-                                       .getJSONObject(1)
-                                       .getJSONArray("row");
-                for (int i = 0; i < rows.length(); i++) {
-                    JSONObject item = rows.getJSONObject(i);
-                    
-                    Restaurant restaurant = new Restaurant(
-                        item.getString("SIGUN_NM"),
-                        item.getString("RESTRT_NM"),
-                        item.optString("REFINE_ROADNM_ADDR", ""),
-                        item.optString("TASTFDPLC_TELNO", ""),
-                        item.optDouble("REFINE_WGS84_LAT", 0.0),
-                        item.optDouble("REFINE_WGS84_LOGT", 0.0)
-                    );
-                    restaurantDAO.insertRestaurant(restaurant);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    List<Restaurant> restaurants = restaurantDAO.getAllRestaurants();
+
+    JSONArray restaurantJsonArray = new JSONArray();
+    for (Restaurant restaurant : restaurants) {
+        JSONObject restaurantJson = new JSONObject();
+        restaurantJson.put("restaurantId", restaurant.getRestaurantId());
+        restaurantJson.put("name", restaurant.getName());
+        restaurantJson.put("sigun", restaurant.getRegion());
+        restaurantJson.put("addr", restaurant.getAddress());
+        restaurantJson.put("tel", restaurant.getPhone());
+        restaurantJson.put("lat", restaurant.getLatitude());
+        restaurantJson.put("lng", restaurant.getLongitude());
+        restaurantJson.put("food", ""); // DB에 대표 메뉴가 없을 경우 빈 값 처리
+        restaurantJsonArray.put(restaurantJson);
     }
 %>
 
@@ -123,32 +67,8 @@
         zoom: 11
     });
 
-    var restaurants = [];
+    var restaurants = <%= restaurantJsonArray.toString() %>;
     var markers = [];
-
-    <% if(jsonData != null) { %>
-        try {
-            var jsonObj = <%= jsonData %>;
-            if(jsonObj.PlaceThatDoATasteyFoodSt && 
-               jsonObj.PlaceThatDoATasteyFoodSt[1] && 
-               jsonObj.PlaceThatDoATasteyFoodSt[1].row) {
-                
-                restaurants = jsonObj.PlaceThatDoATasteyFoodSt[1].row.map(function(item) {
-                    return {
-                        name: item.RESTRT_NM,
-                        sigun: item.SIGUN_NM,
-                        food: item.REPRSNT_FOOD_NM,
-                        lat: parseFloat(item.REFINE_WGS84_LAT),
-                        lng: parseFloat(item.REFINE_WGS84_LOGT),
-                        addr: item.REFINE_ROADNM_ADDR,
-                        tel: item.TASTFDPLC_TELNO
-                    };
-                });
-            }
-        } catch(e) {
-            console.error("데이터 파싱 에러:", e);
-        }
-    <% } %>
 
     function createMarkers(filteredRestaurants) {
         markers.forEach(function(marker) {
@@ -158,7 +78,7 @@
 
         var bounds = new naver.maps.LatLngBounds();
         filteredRestaurants.forEach(function(restaurant) {
-            if(restaurant.lat && restaurant.lng) {
+            if (restaurant.lat && restaurant.lng) {
                 var position = new naver.maps.LatLng(restaurant.lat, restaurant.lng);
                 var marker = new naver.maps.Marker({
                     position: position,
@@ -169,22 +89,8 @@
                     }
                 });
 
-                var infoWindow = new naver.maps.InfoWindow({
-                    content: '<div style="padding:10px;min-width:200px;line-height:150%;">' +
-                            '<h4>' + restaurant.name + '</h4>' +
-                            '<p>지역: ' + restaurant.sigun + '</p>' +
-                            '<p>대표 메뉴: ' + restaurant.food + '</p>' +
-                            '<p>주소: ' + restaurant.addr + '</p>' +
-                            '<p>전화: ' + restaurant.tel + '</p>' +
-                            '</div>'
-                });
-
                 naver.maps.Event.addListener(marker, 'click', function() {
-                    if (infoWindow.getMap()) {
-                        infoWindow.close();
-                    } else {
-                        infoWindow.open(map, marker);
-                    }
+                    openModal(restaurant.restaurantId);
                 });
 
                 bounds.extend(position);
@@ -192,63 +98,105 @@
             }
         });
 
-        if(markers.length > 0) {
+        if (markers.length > 0) {
             map.fitBounds(bounds);
         }
     }
 
     function searchCity() {
         var searchTerm = document.getElementById('citySearch').value.trim();
+
+
         var filteredRestaurants = restaurants.filter(function(restaurant) {
-            return restaurant.sigun.includes(searchTerm);
+            return restaurant.sigun.includes(searchTerm) || restaurant.name.includes(searchTerm);
         });
-        
-        if(filteredRestaurants.length > 0) {
-            createMarkers(filteredRestaurants);
+
+        if (filteredRestaurants.length > 0) {
+            createMarkers(filteredRestaurants); // 검색 결과로 마커 업데이트
+            updateRestaurantList(filteredRestaurants); // 검색 결과로 리스트 업데이트
         } else {
             alert('검색된 맛집이 없습니다.');
         }
     }
+
+
     function updateRestaurantList(restaurants) {
         var restaurantList = document.getElementById('restaurantList');
         restaurantList.innerHTML = '';
 
-        restaurants.forEach(function(restaurant) {
+        restaurants.forEach(function(restaurant, index) {
             var card = document.createElement('div');
             card.className = 'restaurant-card';
-            card.innerHTML = '<h3><a href="#" onclick="showRestaurantInfo(' + JSON.stringify(restaurant) + ')">' + restaurant.name + '</a></h3>';
+            card.setAttribute('data-lat', restaurant.lat);
+            card.setAttribute('data-lng', restaurant.lng);
+            card.setAttribute('data-index', index); // 마커 배열과 매칭
+            card.innerHTML = '<h3>' + restaurant.name + '</h3>' +
+				            '<p>지역: ' + restaurant.sigun + '</p>' +
+				            '<p>주소: ' + restaurant.addr + '</p>' +
+				            '<p>전화: ' + restaurant.tel + '</p>' +
+				            '<div style="text-align: right;">' +  // 오른쪽 정렬을 위한 div 추가
+				            '<button id="place-button" style="margin-right: 10px;">위치 보기</button>' +
+				            '<button id="review-button">리뷰 보기</button>' +
+				            '</div>';  // div 닫기
+
+
+
+			//버튼 클릭 리스너 등록
+			const placebutton = card.querySelector('#place-button');
+			if (placebutton) {
+				placebutton.addEventListener('click', function() {
+			    	moveToRestaurant(index);
+			    });
+			}
+            
+           
+            const reviewbutton = card.querySelector('#review-button');
+			if (reviewbutton) {
+				reviewbutton.addEventListener('click', function() {
+	                openModal(restaurant.restaurantId);
+	            });
+			}
+
             restaurantList.appendChild(card);
         });
     }
 
-    function showRestaurantInfo(restaurant) {
-        var modal = document.getElementById('restaurantModal');
-        var modalName = document.getElementById('modalName');
-        var modalDescription = document.getElementById('modalDescription');
-        var modalImage = document.getElementById('modalImage');
+    function openModal(restaurantId) {
+        fetch('modal/review.jsp?restaurantId=' + restaurantId)
+            .then(response => response.text())  // HTML로 변환
+            .then(data => {
+                // 모달 제목 설정
+                document.getElementById('modalTitle').innerHTML = '리뷰 목록';
+                document.getElementById('modalRegion').innerHTML = data; // HTML 데이터 삽입
 
-        modalName.textContent = restaurant.name;
-        modalDescription.textContent = '지역: ' + restaurant.sigun + '\n대표 메뉴: ' + restaurant.food + '\n주소: ' + restaurant.addr + '\n전화: ' + restaurant.tel;
-        modalImage.src = restaurant.image || '';
-
-        modal.style.display = 'block';
+                // 모달 보여주기
+                document.getElementById('myModal').style.display = "block";
+            })
+            .catch(error => console.error('Error fetching data:', error));
     }
 
-    function closeModal() {
-        var modal = document.getElementById('restaurantModal');
-        modal.style.display = 'none';
-    }
-    document.getElementById('citySearch').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchCity();
+
+    function moveToRestaurant(index) {
+        if (markers[index]) {
+            var marker = markers[index];
+            var position = marker.getPosition();
+
+            
+            map.setCenter(position);
+            map.setZoom(15);
+
+        
+            /* naver.maps.Event.trigger(marker, 'click'); */
         }
-    });
+    }
 
-    if(restaurants.length > 0) {
+    if (restaurants.length > 0) {
         createMarkers(restaurants);
         updateRestaurantList(restaurants);
     }
+
 </script>
+<script type="text/javascript" src="js/modal.js"></script>
 
 </body>
 </html>
